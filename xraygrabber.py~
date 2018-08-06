@@ -1,0 +1,54 @@
+import requests
+import numpy as np
+import matplotlib.pyplot as plt
+from bs4 import BeautifulSoup
+ENERGYRANGES = {'low': 'L', 'high': 'U'}
+URLBASE = "https://physics.nist.gov/cgi-bin/ffast/ffast.pl?"
+
+def empty_params():
+    return {'Formula=': None,
+            'gtype=': None,
+            'range=': None,
+            'frames=': None,
+            'htmltable=': None}
+
+def form_url(formula, energy_range):
+    url = URLBASE
+    params = empty_params()
+    params['gtype='] = '3'
+    params['frames='] = 'no'
+    params['htmltable='] = '1'
+    params['Formula='] = formula
+    params['range='] = ENERGYRANGES[energy_range]
+    for key, value in params.items():
+        url += key
+        url += value
+        url += "&"
+    return url
+
+def get_data(formula, energy_range):
+    url = form_url(formula, energy_range)
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "lxml")
+    table, row = ([], [])
+    for val in soup.find_all("td"):
+        tmp = float(val.contents[0])
+        row.append(tmp)
+        if len(row) == 2:
+            table.append(np.array(row))
+            row = []
+    return np.array(table)
+
+
+def get_full_data(formula):
+    lowedata = get_data(formula, 'low')
+    highedata = get_data(formula, 'high')
+    return np.concatenate((lowedata, highedata), axis=0)
+table = get_full_data("Si")
+plt.loglog(table[:,0], table[:,1])
+plt.show()
+# base string "https://physics.nist.gov/cgi-bin/ffast/ffast.pl?Formula=SiO2&gtype=3&range=L&lower=&upper=&density=&frames=no&htmltable=1"
+class XrayGrabber(object):
+    """Grabs x-ray mass attenuation factors from the nist website"""
+    def __init__(self):
+        pass
