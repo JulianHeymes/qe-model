@@ -91,7 +91,7 @@ def resize_data(materials, bins):
     new_materials = {}
     for m in materials.keys():
         data = materials[m]
-        new_materials[m] = np.array(zip(bins, np.interp(bins, data[:,0], data[:, 1])))
+        new_materials[m] = np.array(list(zip(bins, np.interp(bins, data[:,0], data[:, 1]))))
     return new_materials
 
 def get_bins(materials):
@@ -117,7 +117,10 @@ def new_layer(materials, material, thickness, sensitivity=None):
     sensitivity may be a value or a function, it defines what fraction
     of the energy absorbed is actually detected. The function should take
     an energy and an absorption depth"""
+    print(materials)
     mat_data = materials[material]
+    mat_data = np.array(list(mat_data))
+    print(mat_data)
     transmission = np.exp(-thickness*mat_data[:,1]*1e-4)
     absorption = np.ones_like(transmission) - transmission
     
