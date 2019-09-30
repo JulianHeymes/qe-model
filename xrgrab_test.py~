@@ -1,6 +1,0 @@
-import xray_grabber as xrg
-
-grabber = xrg.XrayData('testdata')
-grabber.get_material_data("Si")
-grabber.get_material_data("Al")
-grabber.get_material_data("Si3N4")
