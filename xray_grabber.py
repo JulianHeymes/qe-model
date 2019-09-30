@@ -68,6 +68,7 @@ class XrayData(object):
 
     def get_material_data(self, formula):
         if formula not in self.material_db:
+            print(f"{formula} not found in database, fetching from web...")
             data = get_full_data(formula)
             np.savetxt(self.db_dir + "/" + formula + ".dat", data)
             self.material_db[formula] = data[np.argsort(data[:,0]), :]

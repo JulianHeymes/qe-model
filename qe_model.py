@@ -103,12 +103,14 @@ def get_bins(materials):
 def load_materials(material_list, base):
     """Creates the material database. Loads from files or grabs from net.
     material_list = dictionary of material, density pairs"""
+    print("Loading requested materials...")
     db = xrg.XrayData(base)
     for material in material_list:
         db.add(material)
     db = db.get_database()
     for material, density in material_list.items():
         db[material][:,1] = db[material][:,1]*density
+    print("Materials loaded!")
     return db
     
     
@@ -117,15 +119,14 @@ def new_layer(materials, material, thickness, sensitivity=None):
     sensitivity may be a value or a function, it defines what fraction
     of the energy absorbed is actually detected. The function should take
     an energy and an absorption depth"""
-    print(materials)
     mat_data = materials[material]
     mat_data = np.array(list(mat_data))
-    print(mat_data)
+
     transmission = np.exp(-thickness*mat_data[:,1]*1e-4)
     absorption = np.ones_like(transmission) - transmission
     
     if(callable(sensitivity)):
-        sens = sensitivity(mat_data)
+        sens = sensitivity(mat_data[:,0], mat_data[:,1])
     elif(sensitivity is None):
         sens = np.zeros_like(mat_data[:,0])
     elif(isinstance(sensitivity, int)):
